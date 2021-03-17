@@ -86,7 +86,9 @@ class TwitterDatasetReader(DatasetReader):
                 line = line.strip()
                 if line.strip() != '':
                     label = line.split(',')[0]
-                    # pos_or_neg = 1 if label == 1 else -1
+                    if label not in ['0', '1']:
+                        print('ErrorLabel:', label)
+                        continue
                     context = ''.join(line.split(',')[1:])
                     data = {'label': label, 'context': context}
                     dataset.append(data)
