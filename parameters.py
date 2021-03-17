@@ -21,7 +21,7 @@ class Params:
         parser.add_argument('-amsgrad', action='store', default=False, type=strtobool)
         parser.add_argument('-word_embedding_dropout', action="store", default=0.0, type=float)
         parser.add_argument('-cuda_devices', action="store", default='0', type=str)
-        parser.add_argument('-num_epochs', action="store", default=5, type=int)
+        parser.add_argument('-num_epochs', action="store", default=15, type=int)
 
         parser.add_argument('-batch_size_for_train', action="store", default=32, type=int)
         parser.add_argument('-batch_size_for_eval', action="store", default=32, type=int)
