@@ -70,7 +70,7 @@ class TwitterDatasetReader(DatasetReader):
             context_field = TextField(tokenized, self.token_indexers)
             fields = {"context": context_field}
 
-            fields['label'] = ArrayField(np.array(data['label']))
+            fields['label'] = LabelField(data['label'])
             fields['mention_uniq_id'] = ArrayField(np.array(mention_uniq_id))
 
         return Instance(fields)
@@ -86,9 +86,9 @@ class TwitterDatasetReader(DatasetReader):
                 line = line.strip()
                 if line.strip() != '':
                     label = line.split(',')[0]
-                    pos_or_neg = 1 if label == 1 else -1
+                    # pos_or_neg = 1 if label == 1 else -1
                     context = ''.join(line.split(',')[1:])
-                    data = {'label': pos_or_neg, 'context': context}
+                    data = {'label': label, 'context': context}
                     dataset.append(data)
 
         # train : dev : test = 7 : 1 : 2

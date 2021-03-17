@@ -22,8 +22,8 @@ class Params:
         parser.add_argument('-cuda_devices', action="store", default='0', type=str)
         parser.add_argument('-num_epochs', action="store", default=5, type=int)
 
-        parser.add_argument('-batch_size_for_train', action="store", default=64, type=int)
-        parser.add_argument('-batch_size_for_eval', action="store", default=64, type=int)
+        parser.add_argument('-batch_size_for_train', action="store", default=32, type=int)
+        parser.add_argument('-batch_size_for_eval', action="store", default=32, type=int)
         parser.add_argument('-debug_sample_num', action="store", default=2000, type=int)
         parser.add_argument('-max_token_length', action="store", default=128, type=int)
 
