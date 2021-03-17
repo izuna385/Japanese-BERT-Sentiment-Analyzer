@@ -11,6 +11,7 @@ from tokenizer import CustomTokenizer
 import numpy as np
 import glob
 import re
+import pickle
 from utils import normalizer
 random.seed(42)
 
@@ -80,43 +81,60 @@ class TwitterDatasetReader(DatasetReader):
         mention_id2data = {}
         train_mention_ids, dev_mention_ids, test_mention_ids = [], [], []
 
-        dataset = []
-        with open(self.config.dataset_path, 'r') as f:
-            for line_idx, line in enumerate(f):
-                line = line.strip()
-                if line.strip() != '':
-                    label = line.split(',')[0]
-                    if label not in ['0', '1']:
-                        print('ErrorLabel:', label)
-                        continue
-                    context = ''.join(line.split(',')[1:])
-                    data = {'label': label, 'context': context}
-                    dataset.append(data)
+        pos_data, neutral_data, neg_data = [], [], []
+        with open(self.config.dataset_path, 'rb') as f:
+            raw_data = pickle.load(f)
 
-        # train : dev : test = 7 : 1 : 2
-        data_num = len(dataset)
-        if self.config.debug:
-            data_num = data_num // 8
-        data_frac = data_num // 10
-        train_tmp_ids = [i for i in range(0, data_frac * 7)]
-        dev_tmp_ids = [j for j in range(data_frac * 7, data_frac * 8)]
-        test_tmp_ids = [k for k in range(data_frac * 8, data_num)]
-
-        for idx, data in enumerate(dataset):
-            mention_id2data.update({idx: data})
-
-            if idx in train_tmp_ids:
-                train_mention_ids.append(idx)
-            elif idx in dev_tmp_ids:
-                dev_mention_ids.append(idx)
-            elif idx in test_tmp_ids:
-                test_mention_ids.append(idx)
-            else:
-                if self.config.debug:
+        pos, neutral, neg = 0, 0, 0
+        for line_idx, line in tqdm(enumerate(raw_data)):
+            context = line['text']
+            label = line['label']
+            if label == [0, 1, 0, 0, 0]:
+                true_label = '1'
+                data = {'label': true_label, 'context': context}
+                pos_data.append(data)
+                pos += 1
+            elif label == [0, 0, 0, 1, 0]:
+                true_label = '0'
+                neutral += 1
+                data = {'label': true_label, 'context': context}
+                if neutral > self.config.max_neutral_data_num:
                     continue
+                neutral_data.append(data)
+            elif label == [0, 0,  1, 0, 0]:
+                true_label = '-1'
+                neg += 1
+                data = {'label': true_label, 'context': context}
+                neg_data.append(data)
+            else:
+                continue
+
+        for one_class_dataset in [pos_data, neutral_data, neg_data]:
+        # train : dev : test = 7 : 1 : 2
+            data_num = len(one_class_dataset)
+            if self.config.debug:
+                data_num = data_num // 8
+            data_frac = data_num // 10
+            train_tmp_ids = [i for i in range(0, data_frac * 7)]
+            dev_tmp_ids = [j for j in range(data_frac * 7, data_frac * 8)]
+            test_tmp_ids = [k for k in range(data_frac * 8, data_num)]
+
+            for idx, data in enumerate(one_class_dataset):
+                tmp_idx_for_all_data = len(mention_id2data)
+                mention_id2data.update({tmp_idx_for_all_data: data})
+
+                if idx in train_tmp_ids:
+                    train_mention_ids.append(tmp_idx_for_all_data)
+                elif idx in dev_tmp_ids:
+                    dev_mention_ids.append(tmp_idx_for_all_data)
+                elif idx in test_tmp_ids:
+                    test_mention_ids.append(tmp_idx_for_all_data)
                 else:
-                    print('Error')
-                    exit()
+                    if self.config.debug:
+                        continue
+                    else:
+                        print('Error')
+                        exit()
 
         return train_mention_ids, dev_mention_ids, test_mention_ids, mention_id2data
 

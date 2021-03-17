@@ -19,7 +19,7 @@ def main():
     train, dev, test = dsr._read('train'), dsr._read('dev'), dsr._read('test')
     train_and_dev = train + dev
     vocab = build_vocab(train_and_dev)
-    num_label = 2
+    num_label = 3
     train_loader, dev_loader, test_loader = build_data_loaders(config, train, dev, test)
     train_loader.index_with(vocab)
     dev_loader.index_with(vocab)

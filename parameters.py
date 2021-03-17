@@ -7,10 +7,11 @@ class Params:
     def __init__(self):
         parser = argparse.ArgumentParser(description='NED')
         parser.add_argument('-debug', action='store', default=False, type=strtobool)
-        parser.add_argument('-dataset_path', action="store", default="./dataset/twitterPosNeg.csv", type=str)
+        parser.add_argument('-dataset_path', action="store", default="./dataset/twitterJSA_data.pickle", type=str)
         parser.add_argument('-serialization_dir', action="store", default="./serialization_dir/", type=str)
         parser.add_argument('-dump_emb_dir', action="store", default="./dump_emb_dir/", type=str)
         parser.add_argument('-bert-name', action="store", default="japanese-bert", type=str)
+        parser.add_argument('-max_neutral_data_num', action="store", default=50000, type=int)
 
         parser.add_argument('-lr', action="store", default=1e-5, type=float)
         parser.add_argument('-weight_decay', action="store", default=0, type=float)
@@ -20,7 +21,7 @@ class Params:
         parser.add_argument('-amsgrad', action='store', default=False, type=strtobool)
         parser.add_argument('-word_embedding_dropout', action="store", default=0.0, type=float)
         parser.add_argument('-cuda_devices', action="store", default='0', type=str)
-        parser.add_argument('-num_epochs', action="store", default=10, type=int)
+        parser.add_argument('-num_epochs', action="store", default=5, type=int)
 
         parser.add_argument('-batch_size_for_train', action="store", default=32, type=int)
         parser.add_argument('-batch_size_for_eval', action="store", default=32, type=int)
