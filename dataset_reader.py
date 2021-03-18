@@ -48,10 +48,12 @@ class TwitterDatasetReader(DatasetReader):
             mention_ids += self.test_mention_ids
 
         for idx, mention_uniq_id in tqdm(enumerate(mention_ids)):
-            instances.append(self.text_to_instance(mention_uniq_id,
-                                                   data=self.mention_id2data[mention_uniq_id]))
-
-        return instances
+            yield self.text_to_instance(mention_uniq_id,
+                                                   data=self.mention_id2data[mention_uniq_id])
+        #     instances.append(self.text_to_instance(mention_uniq_id,
+        #                                            data=self.mention_id2data[mention_uniq_id]))
+        #
+        # return instances
 
     @overrides
     def text_to_instance(self, mention_uniq_id, data=None) -> Instance:
@@ -109,15 +111,19 @@ class TwitterDatasetReader(DatasetReader):
             else:
                 continue
 
+        random.shuffle(pos_data)
+        random.shuffle(neutral_data)
+        random.shuffle(neg_data)
+
         for one_class_dataset in [pos_data, neutral_data, neg_data]:
-        # train : dev : test = 7 : 1 : 2
+        # train : dev : test = 8 : 1 : 1
             data_num = len(one_class_dataset)
             if self.config.debug:
                 data_num = data_num // 8
             data_frac = data_num // 10
-            train_tmp_ids = [i for i in range(0, data_frac * 7)]
-            dev_tmp_ids = [j for j in range(data_frac * 7, data_frac * 8)]
-            test_tmp_ids = [k for k in range(data_frac * 8, data_num)]
+            train_tmp_ids = [i for i in range(0, data_frac * 8)]
+            dev_tmp_ids = [j for j in range(data_frac * 8, data_frac * 9)]
+            test_tmp_ids = [k for k in range(data_frac * 9, data_num)]
 
             for idx, data in enumerate(one_class_dataset):
                 tmp_idx_for_all_data = len(mention_id2data)
@@ -133,7 +139,6 @@ class TwitterDatasetReader(DatasetReader):
                     if self.config.debug:
                         continue
                     else:
-                        print('Error')
                         exit()
 
         return train_mention_ids, dev_mention_ids, test_mention_ids, mention_id2data

@@ -9,16 +9,18 @@ from model import PosNegClassifier
 from utils import build_vocab, build_data_loaders, build_trainer, emb_returner
 from encoder import Pooler_for_mention
 from allennlp.training.util import evaluate
+from predict import SentimentClassPredictor
+import pdb
 
-def main():
+def trainer():
     params = Params()
     config = params.opts
     dsr = TwitterDatasetReader(config=config)
 
     # Loading Datasets
     train, dev, test = dsr._read('train'), dsr._read('dev'), dsr._read('test')
-    train_and_dev = train + dev
-    vocab = build_vocab(train_and_dev)
+    vocab = build_vocab(train)
+    vocab.extend_from_instances(dev)
     num_label = 3
     train_loader, dev_loader, test_loader = build_data_loaders(config, train, dev, test)
     train_loader.index_with(vocab)
@@ -38,6 +40,15 @@ def main():
                            cuda_device=0,
                            batch_weight_key="")
     print(eval_result)
+    model.cpu()
+
+    '''
+    vocab._token_to_index["labels"]
+    {'0': 0, '-1': 1, '1': 2}
+    '''
+    sentiment_class_predictor = SentimentClassPredictor(model, dsr)
+
+    return sentiment_class_predictor
 
 if __name__ == '__main__':
-    main()
+    trainer()

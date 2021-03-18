@@ -36,10 +36,10 @@ class PosNegClassifier(Model):
             self.accuracy(probs, label)
             output['loss'] = loss
             output['logits'] = scores
-            output['probs'] = probs
             output['mention_uniq_id'] = mention_uniq_id
 
         output['encoded_embeddings'] = emb
+        output['probs'] = probs
         return output
 
     @overrides

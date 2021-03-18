@@ -1,2 +1,6 @@
 emoji
 neologdn
+fastapi
+uvicorn
+python-multipart
+allennlp

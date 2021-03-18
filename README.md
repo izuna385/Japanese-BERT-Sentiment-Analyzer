@@ -6,3 +6,7 @@
 
 * `./dataset/` を詳しくは御覧ください。
 
+```
+docker build -t jsa:latest .
+docker run -d --rm -p 12222:8000 -it jsa
+```
