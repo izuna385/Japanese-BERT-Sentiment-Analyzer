@@ -9,8 +9,6 @@ import random
 from tqdm import tqdm
 from tokenizer import CustomTokenizer
 import numpy as np
-import glob
-import re
 import pickle
 from utils import normalizer
 random.seed(42)
@@ -50,10 +48,6 @@ class TwitterDatasetReader(DatasetReader):
         for idx, mention_uniq_id in tqdm(enumerate(mention_ids)):
             yield self.text_to_instance(mention_uniq_id,
                                                    data=self.mention_id2data[mention_uniq_id])
-        #     instances.append(self.text_to_instance(mention_uniq_id,
-        #                                            data=self.mention_id2data[mention_uniq_id]))
-        #
-        # return instances
 
     @overrides
     def text_to_instance(self, mention_uniq_id, data=None) -> Instance:
@@ -71,8 +65,7 @@ class TwitterDatasetReader(DatasetReader):
                                               txt=normalizer(data['context']))][:self.config.max_token_length]
             tokenized += [Token('[SEP]')]
             context_field = TextField(tokenized, self.token_indexers)
-            fields = {"context": context_field}
-
+            fields = {"context": context_field }
             fields['label'] = LabelField(data['label'])
             fields['mention_uniq_id'] = ArrayField(np.array(mention_uniq_id))
 
@@ -91,19 +84,19 @@ class TwitterDatasetReader(DatasetReader):
         for line_idx, line in tqdm(enumerate(raw_data)):
             context = line['text']
             label = line['label']
-            if label == [0, 1, 0, 0, 0]:
+            if label == [0, 1, 0, 0, 0]: # pos
                 true_label = '1'
                 data = {'label': true_label, 'context': context}
                 pos_data.append(data)
                 pos += 1
-            elif label == [0, 0, 0, 1, 0]:
+            elif label == [0, 0, 0, 1, 0]: # neutral
                 true_label = '0'
                 neutral += 1
                 data = {'label': true_label, 'context': context}
                 if neutral > self.config.max_neutral_data_num:
                     continue
                 neutral_data.append(data)
-            elif label == [0, 0,  1, 0, 0]:
+            elif label == [0, 0, 1, 0, 0]: # neg
                 true_label = '-1'
                 neg += 1
                 data = {'label': true_label, 'context': context}
