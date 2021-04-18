@@ -10,6 +10,7 @@ from tqdm import tqdm
 from tokenizer import CustomTokenizer
 import numpy as np
 import pickle
+import json
 from utils import normalizer
 random.seed(42)
 
@@ -84,22 +85,25 @@ class TwitterDatasetReader(DatasetReader):
         for line_idx, line in tqdm(enumerate(raw_data)):
             context = line['text']
             label = line['label']
+            orig_id = line['id']
+            topic = line['topic']
+            status = line['status']
             if label == [0, 1, 0, 0, 0]: # pos
                 true_label = '1'
-                data = {'label': true_label, 'context': context}
+                data = {'label': true_label, 'context': context, 'id': orig_id,  'topic': topic, 'status': status}
                 pos_data.append(data)
                 pos += 1
             elif label == [0, 0, 0, 1, 0]: # neutral
                 true_label = '0'
                 neutral += 1
-                data = {'label': true_label, 'context': context}
+                data = {'label': true_label, 'context': context, 'id': orig_id,  'topic': topic, 'status': status}
                 if neutral > self.config.max_neutral_data_num:
                     continue
                 neutral_data.append(data)
             elif label == [0, 0, 1, 0, 0]: # neg
                 true_label = '-1'
                 neg += 1
-                data = {'label': true_label, 'context': context}
+                data = {'label': true_label, 'context': context, 'id': orig_id,  'topic': topic, 'status': status}
                 neg_data.append(data)
             else:
                 continue
@@ -133,6 +137,14 @@ class TwitterDatasetReader(DatasetReader):
                         continue
                     else:
                         exit()
+        with open('./dataset/train_mention_ids.pkl', 'wb') as trn_:
+            pickle.dump(train_mention_ids, trn_)
+        with open('./dataset/dev_mention_ids.pkl', 'wb') as dev_:
+            pickle.dump(dev_mention_ids, dev_)
+        with open('./dataset/test_mention_ids.pkl', 'wb') as test_:
+            pickle.dump(test_mention_ids, test_)
+        with open('./dataset/mention_id2data.json', 'w') as m2d:
+            json.dump(mention_id2data, m2d, ensure_ascii=False, indent=4, sort_keys=False, separators=(',', ': '))
 
         return train_mention_ids, dev_mention_ids, test_mention_ids, mention_id2data
 
