@@ -84,6 +84,8 @@ class TwitterDatasetReader(DatasetReader):
         pos, neutral, neg = 0, 0, 0
         for line_idx, line in tqdm(enumerate(raw_data)):
             context = line['text']
+            if context.strip() == "":
+                continue
             label = line['label']
             orig_id = line['id']
             topic = line['topic']
