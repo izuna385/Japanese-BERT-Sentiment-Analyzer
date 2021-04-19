@@ -31,7 +31,7 @@ class TwitterDatasetReader(DatasetReader):
             self.mention_ids_returner()
 
     @overrides
-    def _read(self, train_dev_test_flag: str) -> list:
+    def _read(self, train_dev_test_flag: str):
         '''
         :param train_dev_test_flag: 'train', 'dev', 'test'
         :return: list of instances
@@ -47,8 +47,9 @@ class TwitterDatasetReader(DatasetReader):
             mention_ids += self.test_mention_ids
 
         for idx, mention_uniq_id in tqdm(enumerate(mention_ids)):
-            yield self.text_to_instance(mention_uniq_id,
-                                                   data=self.mention_id2data[mention_uniq_id])
+            instances.append(self.text_to_instance(mention_uniq_id, data=self.mention_id2data[mention_uniq_id]))
+
+        return instances
 
     @overrides
     def text_to_instance(self, mention_uniq_id, data=None) -> Instance:
